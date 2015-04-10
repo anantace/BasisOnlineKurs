@@ -29,7 +29,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 	
     }
 
-    // bei Aufruf des Plugins über plugin.php/mooc/...
+    // bei Aufruf des Plugins Ã¼ber plugin.php/mooc/...
     public function initialize ()
     {
         //PageLayout::addStylesheet($this->getPluginUrl() . '/css/style.css');
@@ -116,7 +116,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 	 $stmt->execute(array($GLOBALS['user']->id));
 	 $count = $stmt->rowCount();
 	 if($count == 1){
-		$result = $stmt->fetch();
+	 	$result = $stmt->fetch();
 		if ($this->isMiniCourse($result['seminar_id'])){
 
 			//MiniCourse Navigation for Autor
@@ -182,9 +182,32 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 		}
 
 	 }
-	 if($count == 0 && $my_about->auth_user['perms'] == 'autor'){
-		Navigation::removeItem('/browse');	
+	 if($count == 0){
+	 	
+	 	if($my_about->auth_user['perms'] == 'autor'){
+			Navigation::removeItem('/browse');
+	 	}
+	 	
+		if($this->isMiniCourse($this->getSeminarID()) ) {
+	 			if (Navigation::hasItem('/course')){
+        			
+				if($this->getContext()){
+					/** @var Navigation $courseNavigation */
+        				$courseNavigation = Navigation::getItem('/course');
+        				//$overviewNavigation = $courseNavigation::getItem('/course/overview');
+					$it = $courseNavigation->getIterator();
+
+        				Navigation::insertItem('/course/mini_course', $this->getMiniCourseNavigation(), $it->count() === 0 ? null : $it->key());
+            				Navigation::activateItem('/course/mini_course');
+				}
+				
+			}
+	 	
+	 	}
 	 }
+	 
+	 
+	 
 
     }
    
