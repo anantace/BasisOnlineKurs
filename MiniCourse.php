@@ -6,8 +6,7 @@
  *
  * ...
  *
- * @author  <tgloeggl@uos.de>
- * @author  <mlunzena@uos.de>
+ * @author  <asudau@uos.de>
  */
 
 require_once 'lib/classes/DBManager.class.php';
