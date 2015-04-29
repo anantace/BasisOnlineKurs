@@ -76,7 +76,7 @@
                 <? endif ?>
                 <td style="text-align: right"><?= (++$nr < 10) ? sprintf('%02d', $nr) : $nr ?></td>
                 <td>
-                    <a style="position: relative" href="<?= $controller->url_for(sprintf('profile?username=%s',$tutor['username'])) ?>">
+                    <a style="position: relative" href="<?= URLHelper::getLink("dispatch.php/profile?username=".$tutor['username'])  ?>">
                     <?= Avatar::getAvatar($tutor['user_id'], $tutor['username'])->getImageTag(Avatar::SMALL,
                             array('style' => 'margin-right: 5px', 'title' => htmlReady($fullname))); ?>
                     <?= $tutor['mkdate'] >= $last_visitdate ? Assets::img('red_star.png',
