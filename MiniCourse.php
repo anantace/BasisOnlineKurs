@@ -27,26 +27,30 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 		$this->setupStudIPNavigation();
 		$referer = $_SERVER['REQUEST_URI'];
 
+		//if inside MiniCourse
 		if ($this->isMiniCourse($this->getSeminarId()) ){
 
+			//redirect User and Autor from overview to MiniCourse View
 		    if(!$perm->have_studip_perm('tutor', $this->getSeminarId()) ) {
- 			if($referer!=str_replace("/course/overview","",$referer)){
-				header('Location: http://192.168.56.101/el4/vhs-3.1/public/plugins.php/minicourse/show?cid=' . $this->getSeminarId(), true, 303);
-				exit();	
-			} 
+				if($referer!=str_replace("/course/overview","",$referer)){
+					header('Location: '. $GLOBALS['ABSOLUTE_URI_STUDIP']. '/plugins.php/minicourse/show?cid=' . $this->getSeminarId(), true, 303);
+					exit();	
+				} else //setup MiniCourse Navigation for user after redirect
+				{
+					$this->setupMiniCourseNavigation();	
+				}
 		    }
-			
+			//setup CourseNavigation for dozent and tutor
 		    else if ( !$perm->have_perm('admin') )
 		    {
-			var_dump($perm->get_perm());
-			$this->setupMiniCourseNavigation();	
+				$this->setupMiniCourseNavigation();	
 		    }
-		    
+		//if startpage or my-Courses after login and only one MiniCourse -> redirect to course 
 	  	} else if ( ( ($referer!=str_replace("dispatch.php/start","",$referer)) ||   ($referer!=str_replace("dispatch.php/my_courses","",$referer))   ) && ($this->isSingleMiniCourseUser($GLOBALS['user']->id)) ){
 				
 				$result = $this->getSemStmt($GLOBALS['user']->id);
 
-				header('Location: http://192.168.56.101/el4/vhs-3.1/public/plugins.php/minicourse/show?cid='. $result['seminar_id'], true, 303);
+				header('Location: '. $GLOBALS['ABSOLUTE_URI_STUDIP']. '/plugins.php/minicourse/show?cid='. $result['seminar_id'], true, 303);
 				exit();	
 			} 
 
@@ -224,7 +228,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 
 	 }
 	 else if($count == 0){
-			if(!$perm->have_perm('tutor')){
+			if(!$perm->have_perm('tutor') && $perm->have_perm('user')){
 				Navigation::removeItem('/browse');
 			} 
 			
