@@ -23,7 +23,12 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
     public function __construct() {
         parent::__construct();
 		$this->setupStudIPNavigation();
-		
+		if ($this->isMiniCourse($this->getSeminarId())){
+			//var_dump(Navigation::getItem('/'));
+			$this->setupMiniCourseNavigation();
+	 	 		
+	  	}
+
     }
 
     // bei Aufruf des Plugins Ã¼ber plugin.php/mooc/...
@@ -118,13 +123,13 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 	 if($count == 1){
 	 	$result = $stmt->fetch();
 		
-		//If User is member in only one course wich is a miniCourse
+		//If User is member in only one course which is a miniCourse
 		if ($this->isMiniCourse($result['seminar_id'])){
 
 			//MiniCourse Navigation for Autor
 			if(!$perm->have_studip_perm('tutor', $result['seminar_id'] )){
         		
-				$this->setupMiniCourseNavigation();
+				//$this->setupMiniCourseNavigation();
 				
 				//StudIP Navigation for MiniCourse-User
 				if (Navigation::hasItem('/community')) {
@@ -146,7 +151,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
         				Navigation::insertItem('/course/mini_course', $this->getMiniCourseNavigation("Mein Kurs"), $it->count() === 0 ? null : $it->key());
             				Navigation::activateItem('/course/mini_course');
 				}
-				Navigation::getItem('/course')->setURL("/plugins.php/minicourse/show?cid=". $result['seminar_id']);
+				Navigation::getItem('/course')->setURL("http://192.168.56.101/el4/vhs-3.1/public/plugins.php/minicourse/show?cid=". $result['seminar_id']);
 				Navigation::getItem('/course')->setTitle("Mein Kurs");
 				
 			}**/
@@ -157,7 +162,10 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 					Navigation::getItem('/start/my_courses')->setTitle("Mein Kurs");
 					//Navigation::removeItem('/start');
         		}
-			
+			var_dump(Navigation::getItem('/browse')->getTitle());
+			Navigation::getItem('/browse')->setTitle("Mein Kurs");
+			var_dump(Navigation::getItem('/browse')->getTitle());
+
 			Navigation::getItem('/browse')->setURL("/plugins.php/minicourse/show?cid=". $result['seminar_id']);
 			Navigation::getItem('/browse')->setTitle("Mein Kurs");
 			
@@ -174,17 +182,31 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 		}
 
 	 }
-	 if($count == 0){
-	 	
+	 else if($count == 0){
+			var_dump($this->getSeminarId());
 			if($my_about->auth_user['perms'] == 'autor'){
 				Navigation::removeItem('/browse');
+			} 
+			
+			//FUNKTIONIERT NICHT
+			else if($my_about->auth_user['perms'] == 'nobody'){
+				if ($this->isMiniCourse($this->getSeminarId())){
+					//var_dump(Navigation::getItem('/'));
+					//$this->setupMiniCourseNavigation();
+	 	 		}
 			}
 	 }
-	 if($count > 1){
+	 else if($count > 1){
 		if ($this->isMiniCourse($this->getSeminarId())){
-			$this->setupMiniCourseNavigation();
+			//$this->setupMiniCourseNavigation();
 	 	}
 	 }
+	 else if ($this->isMiniCourse($this->getSeminarId())){
+				//var_dump(Navigation::getItem('/'));
+				//$this->setupMiniCourseNavigation();
+	 	 		
+	  	}
+
 	}
 	 	
 		/**fÃ¼r Admin - zurzeit Ã¼berflÃ¼ssig
@@ -229,8 +251,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 			if (Navigation::hasItem('/course/scm')) {
 				Navigation::removeItem('/course/scm');
         		}
-		
-	 				
+				
 		     $courseNavigation = Navigation::getItem('/course');
         		
 		     $it = $courseNavigation->getIterator();
