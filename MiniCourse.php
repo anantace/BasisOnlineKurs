@@ -22,12 +22,33 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 
     public function __construct() {
         parent::__construct();
+
+		global $perm;
 		$this->setupStudIPNavigation();
-		if ($this->isMiniCourse($this->getSeminarId())){
-			//var_dump(Navigation::getItem('/'));
-			$this->setupMiniCourseNavigation();
-	 	 		
-	  	}
+		$referer = $_SERVER['REQUEST_URI'];
+
+		if ($this->isMiniCourse($this->getSeminarId()) ){
+
+		    if(!$perm->have_studip_perm('tutor', $this->getSeminarId()) ) {
+ 			if($referer!=str_replace("/course/overview","",$referer)){
+				header('Location: http://192.168.56.101/el4/vhs-3.1/public/plugins.php/minicourse/show?cid=' . $this->getSeminarId(), true, 303);
+				exit();	
+			} 
+		    }
+			
+		    else if ( !$perm->have_perm('admin') )
+		    {
+			var_dump($perm->get_perm());
+			$this->setupMiniCourseNavigation();	
+		    }
+		    
+	  	} else if ( ( ($referer!=str_replace("dispatch.php/start","",$referer)) ||   ($referer!=str_replace("dispatch.php/my_courses","",$referer))   ) && ($this->isSingleMiniCourseUser($GLOBALS['user']->id)) ){
+				
+				$result = $this->getSemStmt($GLOBALS['user']->id);
+
+				header('Location: http://192.168.56.101/el4/vhs-3.1/public/plugins.php/minicourse/show?cid='. $result['seminar_id'], true, 303);
+				exit();	
+			} 
 
     }
 
@@ -103,6 +124,36 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
         return false;
     }
 
+    private function isSingleMiniCourseUser($user_id)
+    {
+        $stmt = $this->getSemStmt($user_id);
+	 if ($this->isMiniCourse($stmt['seminar_id'])){
+		return true;
+	 } else return false;
+	 
+    }
+
+    private function getSemCount($user_id){
+	 
+	 $stmt = DBManager::get()->prepare("SELECT su.seminar_id FROM seminar_user su
+					WHERE su.user_id = ?");
+	 $stmt->execute(array($user_id));
+	 $count = $stmt->rowCount();
+	 return $count;
+    }
+
+    private function getSemStmt($user_id){
+	
+	   $stmt = DBManager::get()->prepare("SELECT su.seminar_id FROM seminar_user su
+					WHERE su.user_id = ?");
+	   $stmt->execute(array($user_id));
+	   $count = $stmt->rowCount();
+	   if($count == 1){
+	   	return $stmt->fetch();
+	   }
+	   else return false;
+    }
+
     private function getMiniCourseNavigation($title)
     {
 
@@ -115,16 +166,15 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 
     private function setupStudIPNavigation(){
 	 
+
 	 global $perm;
-	 $stmt = DBManager::get()->prepare("SELECT su.seminar_id FROM seminar_user su
-					WHERE su.user_id = ?");
-	 $stmt->execute(array($GLOBALS['user']->id));
-	 $count = $stmt->rowCount();
+
+	 $count = $this->getSemCount($GLOBALS['user']->id);
 	 if($count == 1){
-	 	$result = $stmt->fetch();
+	 	$result = $this->getSemStmt($GLOBALS['user']->id);
 		
 		//If User is member in only one course which is a miniCourse
-		if ($this->isMiniCourse($result['seminar_id'])){
+		if ($this->isSingleMiniCourseUser($GLOBALS['user']->id)){
 
 			//MiniCourse Navigation for Autor
 			if(!$perm->have_studip_perm('tutor', $result['seminar_id'] )){
@@ -138,23 +188,12 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 				if (Navigation::hasItem('/calendar')) {
 					Navigation::removeItem('/calendar');
         		}
-			}
-			/**
-			if (Navigation::hasItem('/course')){
-        			
-				if($this->getContext()){
-					//(@var Navigation $courseNavigation
-        				$courseNavigation = Navigation::getItem('/course');
-        				//$overviewNavigation = $courseNavigation::getItem('/course/overview');
-					$it = $courseNavigation->getIterator();
+				if (Navigation::hasItem('/start')) {
+					Navigation::removeItem('/start');
+        		}
 
-        				Navigation::insertItem('/course/mini_course', $this->getMiniCourseNavigation("Mein Kurs"), $it->count() === 0 ? null : $it->key());
-            				Navigation::activateItem('/course/mini_course');
-				}
-				Navigation::getItem('/course')->setURL("http://192.168.56.101/el4/vhs-3.1/public/plugins.php/minicourse/show?cid=". $result['seminar_id']);
-				Navigation::getItem('/course')->setTitle("Mein Kurs");
-				
-			}**/
+			}
+			
 
 			//for every user with only one MiniCourse
 			if (Navigation::hasItem('/start/my_courses')) {
@@ -162,9 +201,11 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 					Navigation::getItem('/start/my_courses')->setTitle("Mein Kurs");
 					//Navigation::removeItem('/start');
         		}
-			var_dump(Navigation::getItem('/browse')->getTitle());
-			Navigation::getItem('/browse')->setTitle("Mein Kurs");
-			var_dump(Navigation::getItem('/browse')->getTitle());
+
+			if (Navigation::hasItem('/course')){
+				Navigation::getItem('/course')->setURL("/plugins.php/minicourse/show?cid=". $result['seminar_id']);
+				Navigation::getItem('/course')->setTitle("Mein Kurs");
+			}
 
 			Navigation::getItem('/browse')->setURL("/plugins.php/minicourse/show?cid=". $result['seminar_id']);
 			Navigation::getItem('/browse')->setTitle("Mein Kurs");
@@ -183,18 +224,10 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 
 	 }
 	 else if($count == 0){
-			var_dump($this->getSeminarId());
-			if($my_about->auth_user['perms'] == 'autor'){
+			if(!$perm->have_perm('tutor')){
 				Navigation::removeItem('/browse');
 			} 
 			
-			//FUNKTIONIERT NICHT
-			else if($my_about->auth_user['perms'] == 'nobody'){
-				if ($this->isMiniCourse($this->getSeminarId())){
-					//var_dump(Navigation::getItem('/'));
-					//$this->setupMiniCourseNavigation();
-	 	 		}
-			}
 	 }
 	 else if($count > 1){
 		if ($this->isMiniCourse($this->getSeminarId())){
@@ -202,7 +235,6 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 	 	}
 	 }
 	 else if ($this->isMiniCourse($this->getSeminarId())){
-				//var_dump(Navigation::getItem('/'));
 				//$this->setupMiniCourseNavigation();
 	 	 		
 	  	}
@@ -237,7 +269,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 				Navigation::removeItem('/course/members');
 			}
 			if (Navigation::hasItem('/course/main')) {
-				//Navigation::removeItem('/course/main');
+				Navigation::removeItem('/course/main');
 			}
 			if (Navigation::hasItem('/course/forum2')) {
 				Navigation::removeItem('/course/forum2');
