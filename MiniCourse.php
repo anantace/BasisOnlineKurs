@@ -59,7 +59,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
     // bei Aufruf des Plugins Ã¼ber plugin.php/mooc/...
     public function initialize ()
     {
-        //PageLayout::addStylesheet($this->getPluginUrl() . '/css/style.css');
+        PageLayout::addStylesheet($this->getPluginUrl() . '/css/style.css');
         //PageLayout::addStylesheet($this->getPluginURL().'/assets/style.css');
         //PageLayout::addScript($this->getPluginURL().'/assets/application.js');
 	 
