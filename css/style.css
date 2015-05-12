@@ -1,0 +1,32 @@
+#miniCourse{
+ display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 900px;
+}
+
+#miniCourseLeft{
+ width: 400px;
+ float: left;
+ margin: 20px;
+}
+
+
+#miniCourseRight{
+ width: 400px;
+ float: right;
+ margin: 20px;
+
+}
+
+#miniCourseAvatar{
+ width: 100px;
+ float: left;
+ margin: 5px;
+}
+
+#miniCourseDetails{
+ width: 270px;
+ float: right;
+ margin: 5px 0px 5px 15px;
+}

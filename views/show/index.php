@@ -1,10 +1,24 @@
 
 
-<? use Studip\LinkButton; ?>
-
-<div style="width:45%; float:left">
+<? 
+require_once "lib/classes/CourseAvatar.class.php";
+use Studip\LinkButton; 
+   
+?>
+<div id="miniCourse">
+<div id="miniCourseLeft">
 
 <?
+$avatar=CourseAvatar::getAvatar($sem->getId());
+$avatarUrl=$avatar->getCustomAvatarUrl('medium');
+if($avatarUrl){
+	echo "<div id='miniCourseAvatar'>";
+	echo "<img src=" . htmlReady($avatarUrl) . ">";
+	echo "<br><br>";
+	echo "</div>";
+	echo "<div id='miniCourseDetails'>";
+}
+
 echo "<h1>".htmlReady($GLOBALS['SessSemName']["header_line"]). "</h1>";
     if ($GLOBALS['SessSemName'][3]) {
         echo "<b>" . _("Untertitel:") . " </b>";
@@ -26,9 +40,13 @@ $dozenten = $sem->getMembers('dozent');
     }
     printf("<b>%s: </b>%s<br><br>", get_title_for_status('dozent', $num_dozenten), implode(', ', $show_dozenten));
 
+if($avatarUrl){
+	echo "</div>";
+}
+
 ?>
 
-<b><?= _("Zeit / Veranstaltungsort") ?>:</b><br>
+<b><?= _("Zeit/Veranstaltungsort") ?>:</b><br>
         <?
         $show_link = ($GLOBALS["perm"]->have_studip_perm('autor', $course_id) && $modules['schedule']);
         echo $sem->getDatesTemplate('dates/seminar_html', array('link_to_dates' => $show_link, 'show_room' => true));
@@ -94,7 +112,7 @@ $dozenten = $sem->getMembers('dozent');
 
 </div>
 
-<div style="width:45%; float:right">
+<div id="miniCourseRight">
 
 
 <? echo $members; ?>
@@ -233,7 +251,7 @@ if ($votes || $evaluations): ?>
 
 
 
-
+</div>
 
 
 </div>
