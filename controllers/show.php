@@ -20,6 +20,7 @@ class ShowController extends StudipController {
 
         $this->set_layout($GLOBALS['template_factory']->open('layouts/base_without_infobox'));
 	 PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]);
+	 Navigation::activateItem('/course/mini_course');
 
 	 $this->course = Course::findCurrent();
 	 if (!$this->course) {

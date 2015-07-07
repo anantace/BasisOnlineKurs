@@ -292,7 +292,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
         		
 		     $it = $courseNavigation->getIterator();
 		     Navigation::insertItem('/course/mini_course', $this->getMiniCourseNavigation("Mein Kurs"), $it->count() === 0 ? null : $it->key());
-            	     Navigation::activateItem('/course/mini_course');
+            	     
 		   }
 		} else {
 		   if (Navigation::hasItem('/course')){
@@ -300,7 +300,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
         		
 		       $it = $courseNavigation->getIterator();
 		       Navigation::insertItem('/course/mini_course', $this->getMiniCourseNavigation("Teilnehmeransicht"), $it->count() === 0 ? null : $it->key());
-            	       Navigation::activateItem('/course/mini_course');
+            	      
 		   }
 		}
 			

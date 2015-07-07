@@ -26,7 +26,9 @@ echo "<h1>".htmlReady($GLOBALS['SessSemName']["header_line"]). "</h1>";
         echo "<br>";
     }
 if($description){
-	echo "<b>Kursbeschreibung:</b><br> " . htmlReady($description);
+	$html = array("<div>", "</div>");
+	echo "<b>Kursbeschreibung:</b><br> ";
+	echo htmlReady(str_replace($html,"",$description));
 	echo "<br><br>";
 }
 
