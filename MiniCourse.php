@@ -1,5 +1,5 @@
 <?php
-
+require_once 'public/plugins_packages/virtUOS/MiniCourse/models/CourseTab.class.php';
 
 /**
  * MiniCourse.class.php
@@ -17,7 +17,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
      * @var Container
      */
     private $container;
-
+    public $ignore_tabs = array('+', 'Verwaltung', 'Übersicht', 'Teilnehmeransicht');
     
 
     public function __construct() {
@@ -188,13 +188,13 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 				//StudIP Navigation for MiniCourse-User
 				if (Navigation::hasItem('/community')) {
 					Navigation::removeItem('/community');
-        		}
+        			}
 				if (Navigation::hasItem('/calendar')) {
 					Navigation::removeItem('/calendar');
-        		}
+        			}
 				if (Navigation::hasItem('/start')) {
 					Navigation::removeItem('/start');
-        		}
+        			}
 
 			}
 			
@@ -269,6 +269,26 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 		global $perm;
 		if(!$perm->have_studip_perm('tutor', $this->getSeminarId() )){
 		   if (Navigation::hasItem('/course')){
+			
+			$block = new CourseTab();
+
+			foreach(array_keys(Navigation::getItem('course')->getSubNavigation()) as $subNav){
+		    		
+				$tab = Navigation::getItem('course/' . $subNav);
+				if(!in_array($tab->getTitle(), $this->ignore_tabs)){
+		    			$block = CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
+                                 array($this->getSeminarId(),$tab->getTitle()) );
+					var_dump($tab->getTitle());
+					var_dump($block->getValue('tn_visible'));
+					if ($block->getValue('tn_visible') != 'yes'){
+						Navigation::getItem('course')->removeSubNavigation($subNav);
+					} 
+				}
+			}
+			
+			//var_dump(array_keys(Navigation::getItem('course')->getSubNavigation()));
+
+			/**
 			if (Navigation::hasItem('/course/members')) {   //&& !$perm->have_perm('tutor')
 				Navigation::removeItem('/course/members');
 			}
@@ -287,6 +307,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 			if (Navigation::hasItem('/course/scm')) {
 				Navigation::removeItem('/course/scm');
         		}
+			**/
 				
 		     $courseNavigation = Navigation::getItem('/course');
         		
