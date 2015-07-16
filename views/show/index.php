@@ -3,14 +3,11 @@
 <? 
 require_once "lib/classes/CourseAvatar.class.php";
 use Studip\LinkButton; 
-   
-?>
  
-<? foreach ($tabs as $tab){
-	
-}
-?>
 
+  
+if($courseadmin){
+?>
 
 <form action="<?=$controller->url_for('/show/save/');?>" method="post">
 
@@ -22,8 +19,9 @@ $tab_num = 0;
 foreach($tabs as $tab){?>
  	<p>
  	<input type="checkbox" name="visible_<?=$tab_num?>" <?=$tab['visible']?>/>
- 	<input type="hidden" value="<?= $tab['title']; ?>" name="tab_title_<?=$tab_num?>" />
- 	<?= $tab['title']; ?></p>
+ 	<input type="hidden" value="<?= $tab['tab']; ?>" name="tab_title_<?=$tab_num?>" />
+	<input value="<?= $tab['title']; ?>" name="new_tab_title_<?=$tab_num?>" />
+ 	(<?= $tab['tab']; ?>)</p>
  	<?$tab_num++;
 	
 }?>
@@ -32,6 +30,7 @@ foreach($tabs as $tab){?>
 <p><button title="Änderungen übernehmen" name="submit" class="button" type="submit">Übernehmen</button></p>
 </form>
 
+<? } ?>
 
 
 <div id="miniCourse">
