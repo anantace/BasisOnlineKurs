@@ -272,64 +272,11 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 			
 
 			$this->sortCourseNavigation();
-			$block = new CourseTab();
-
-			foreach(array_keys(Navigation::getItem('course')->getSubNavigation()) as $subNav){
-		    		
-				$tab = Navigation::getItem('course/' . $subNav);
-				if(!in_array($tab->getTitle(), $this->ignore_tabs)){
-		    			$block = CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
-                                 array($this->getSeminarId(),$tab->getTitle()) );
-					/**
-					if($block){
-						if ($block->getValue('tn_visible') == 'yes'){
-						
-							//Tabs umbenennen - das hier sollte nicht innerhalb dieser Schleife passieren
-							foreach(Navigation::getItem('course/')->getSubNavigation() as $nav){
-								if ($nav->getTitle() == $block->getValue('tab')){
-									$nav->setTitle($block->getValue('title'));
-								}
-							} 
-
-
-
-
-						} else {
-						Navigation::getItem('course')->removeSubNavigation($subNav);	
-						}
-
-					} else {
-						Navigation::getItem('course')->removeSubNavigation($subNav);	
-					}**/
-				}
-			}
-
+			
 			if (Navigation::hasItem('/course/main')) {
 				Navigation::removeItem('/course/main');
 			}
 			
-			//var_dump(array_keys(Navigation::getItem('course')->getSubNavigation()));
-
-			/**
-			if (Navigation::hasItem('/course/members')) {   //&& !$perm->have_perm('tutor')
-				Navigation::removeItem('/course/members');
-			}
-			if (Navigation::hasItem('/course/main')) {
-				Navigation::removeItem('/course/main');
-			}
-			if (Navigation::hasItem('/course/forum2')) {
-				Navigation::removeItem('/course/forum2');
-			}
-			if (Navigation::hasItem('/course/files')) {
-				Navigation::removeItem('/course/files');
-			}
-			if (Navigation::hasItem('/course/schedule')) {
-				Navigation::removeItem('/course/schedule');
-			}
-			if (Navigation::hasItem('/course/scm')) {
-				Navigation::removeItem('/course/scm');
-        		}
-			**/
 				
 		     $courseNavigation = Navigation::getItem('/course');
         		
@@ -351,24 +298,28 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 	
     private function sortCourseNavigation(){
    	
-	$oldNavigation = Navigation::getItem('/course');
+	$newNavigation = Navigation::getItem('/course');
 	foreach(Navigation::getItem('/course') as $key => $tab){
 		$block = CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
                                  array($this->getSeminarId(),$tab->getTitle()) );
 		if($block){
 			$tab->setTitle($block->getValue('title'));
 			if($block->getValue('tn_visible') == 'yes'){
-				$subNavigations[$block->getValue('position')] = $tab;	
+				$subNavigations[$block->getValue('position')][$key] = $tab;	
 			}		
 		}
-		$oldNavigation->removeSubNavigation($key);
-	}
+		$newNavigation->removeSubNavigation($key);
+	}	
+	
 	ksort($subNavigations);
 
-	foreach($subNavigations as $subNav){
-		$oldNavigation->addSubNavigation($subNav->getTitle(), $subNav);
+	foreach($subNavigations as $subNavs){
+	    foreach($subNavs as $key => $subNav){
+		$newNavigation->addSubNavigation($key, $subNav);
+		
+	    }
 	}
-	Navigation::addItem('/course', $oldNavigation);
+	Navigation::addItem('/course', $newNavigation);
     }
 
     public function getInfoTemplate($course_id){
