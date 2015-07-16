@@ -21,6 +21,7 @@ foreach($tabs as $tab){?>
  	<input type="checkbox" name="visible_<?=$tab_num?>" <?=$tab['visible']?>/>
  	<input type="hidden" value="<?= $tab['tab']; ?>" name="tab_title_<?=$tab_num?>" />
 	<input value="<?= $tab['title']; ?>" name="new_tab_title_<?=$tab_num?>" />
+	<input value="<?= $tab['position']; ?>" name="tab_position_<?=$tab_num?>" size="2" />
  	(<?= $tab['tab']; ?>)</p>
  	<?$tab_num++;
 	
