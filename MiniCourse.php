@@ -269,24 +269,10 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 		global $perm;
 		if(!$perm->have_studip_perm('tutor', $this->getSeminarId() )){
 		   if (Navigation::hasItem('/course')){
-			if (Navigation::hasItem('/course/members')) {   //&& !$perm->have_perm('tutor')
-				Navigation::removeItem('/course/members');
-			}
+			
 			if (Navigation::hasItem('/course/main')) {
 				Navigation::removeItem('/course/main');
 			}
-			if (Navigation::hasItem('/course/forum2')) {
-				Navigation::removeItem('/course/forum2');
-			}
-			if (Navigation::hasItem('/course/files')) {
-				Navigation::removeItem('/course/files');
-			}
-			if (Navigation::hasItem('/course/schedule')) {
-				Navigation::removeItem('/course/schedule');
-			}
-			if (Navigation::hasItem('/course/scm')) {
-				Navigation::removeItem('/course/scm');
-        		}
 				
 		     $courseNavigation = Navigation::getItem('/course');
         		
