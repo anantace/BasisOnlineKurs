@@ -43,7 +43,6 @@ class ShowController extends StudipController {
 
 
 	//Tabs und zugehörige Einstellung laden
-		$position = 1;
 		foreach( Navigation::getItem('course') as $tab){
 		    if(!in_array($tab->getTitle(), $this->ignore_tabs)){
 		    	$block = CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
@@ -54,15 +53,14 @@ class ShowController extends StudipController {
 						 'visible' => strcmp($block->getValue('tn_visible'), "yes") == 0 ? 'checked': '',
 					  	 'position' => $block->getValue('position')
 						);
-			} else {
+			} else 
 			   $this->tabs[] = array('tab' => $tab->getTitle(),
 						 'title' => $tab->getTitle(), 
 						 'visible' => '',
-						 'position' => $position
+						 'position' => ''
 					  );
-			}
-			$position++;
-		    } 
+
+		    }
 		}
 	 $this->tabs = $this->array_sort($this->tabs, 'position', SORT_ASC);
 		
@@ -117,15 +115,6 @@ class ShowController extends StudipController {
 	
 	$this->tabs = $_POST;
 	$tab_count = intval($this->tabs['tab_num']);
-
-
-	$order = explode(',',$this->tabs['new_order']);
-	$position = 1;
-	foreach($order as $o){
-	    $this->tabs['tab_position_'. $o] = $position;
-	    $position++;
-	}
-	
 
 	for ($i = 0; $i < $tab_count; $i++){
 

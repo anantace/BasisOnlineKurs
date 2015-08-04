@@ -61,7 +61,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
     {
         PageLayout::addStylesheet($this->getPluginUrl() . '/css/style.css');
         //PageLayout::addStylesheet($this->getPluginURL().'/assets/style.css');
-        PageLayout::addScript($this->getPluginURL().'/js/script.js');
+        //PageLayout::addScript($this->getPluginURL().'/assets/application.js');
 	 
     }
 	
