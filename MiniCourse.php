@@ -278,21 +278,9 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 				if(!in_array($tab->getTitle(), $this->ignore_tabs)){
 		    			$block = CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
                                  array($this->getSeminarId(),$tab->getTitle()) );
-					if($block){
-						if ($block->getValue('tn_visible') == 'yes'){
-						//das hier sollte nicht innerhalb dieser Schleife passieren
-							foreach(Navigation::getItem('course/')->getSubNavigation() as $nav){
-								if ($nav->getTitle() == $block->getValue('tab')){
-									$nav->setTitle($block->getValue('title'));
-								}
-							} 
-						} else {
-						Navigation::getItem('course')->removeSubNavigation($subNav);	
-						}
-
-					} else {
-						Navigation::getItem('course')->removeSubNavigation($subNav);	
-					}
+					if ($block->getValue('tn_visible') != 'yes'){
+						Navigation::getItem('course')->removeSubNavigation($subNav);
+					} 
 				}
 			}
 
