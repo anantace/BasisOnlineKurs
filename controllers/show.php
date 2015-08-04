@@ -37,24 +37,16 @@ class ShowController extends StudipController {
 
     public function index_action() {
 	
-	global $perm;
-
-	$this->courseadmin = $perm->have_studip_perm('tutor', $this->course_id);
-
-
-	//Tabs und zugehörige Einstellung laden
 		foreach( Navigation::getItem('course') as $tab){
 		    if(!in_array($tab->getTitle(), $this->ignore_tabs)){
 		    	$block = CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
                                  array($this->course_id,$tab->getTitle()) );
 			if ($block){
-		    		$this->tabs[] = array('tab' => $tab->getTitle(), 
-						 'title' => $block->getValue('title'),
+		    		$this->tabs[] = array('title' => $tab->getTitle(), 
 						 'visible' => strcmp($block->getValue('tn_visible'), "yes") == 0 ? 'checked': ''
 					  );
 			} else 
-			   $this->tabs[] = array('tab' => $tab->getTitle(),
-						 'title' => $tab->getTitle(), 
+			   $this->tabs[] = array('title' => $tab->getTitle(), 
 						 'visible' => ''
 					  );
 
@@ -123,7 +115,6 @@ class ShowController extends StudipController {
 			$block->setData(array(
             		'seminar_id' => $this->course_id,
            		'tab'       => $this->tabs['tab_title_'. $i],
-			'title'       => $this->tabs['new_tab_title_'. $i],
             		'tn_visible'      => $this->tabs['visible_'. $i] == 'on' ? 'yes' : 'no'
         		));	
 
@@ -134,8 +125,12 @@ class ShowController extends StudipController {
 		else {
 			$block = CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
                                  array($this->course_id,$this->tabs['tab_title_'. $i]));
+			var_dump($block->getValue('tab'));
+			var_dump($block->getValue('title'));
+			//var_dump($block[0]['tn_visible']);
+			//var_dump($block[0]['position']);
 			$block->setValue('tn_visible', $this->tabs['visible_'. $i] == 'on' ? 'yes' : 'no');
-			$block->setValue('title', $this->tabs['new_tab_title_'. $i]);
+			//$block->setValue('title', 'yes');
 			$block->store();
 
 		}
