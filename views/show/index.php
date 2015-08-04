@@ -5,35 +5,6 @@ require_once "lib/classes/CourseAvatar.class.php";
 use Studip\LinkButton; 
    
 ?>
- 
-<? foreach ($tabs as $tab){
-	
-}
-?>
-
-
-<form action="<?=$controller->url_for('/show/save/');?>" method="post">
-
-<p>Markieren Sie hier bei Bedarf, welche der von Ihnen verwendeten Reiter für die KursteilnehmerInnen zusätzlich zur Teilnehmeransicht sichtbar sein sollen:</p>
-
-<?	
-$tab_num = 0;
-
-foreach($tabs as $tab){?>
- 	<p>
- 	<input type="checkbox" name="visible_<?=$tab_num?>" <?=$tab['visible']?>/>
- 	<input type="hidden" value="<?= $tab['title']; ?>" name="tab_title_<?=$tab_num?>" />
- 	<?= $tab['title']; ?></p>
- 	<?$tab_num++;
-	
-}?>
-
-<input type="hidden" name="tab_num" value="<?=$tab_num?>" />
-<p><button title="Änderungen übernehmen" name="submit" class="button" type="submit">Übernehmen</button></p>
-</form>
-
-
-
 <div id="miniCourse">
 <div id="miniCourseLeft">
 

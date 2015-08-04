@@ -5,7 +5,7 @@ require_once 'app/controllers/news.php';
 
 class ShowController extends StudipController {
 
-    public $ignore_tabs = array('+', 'Verwaltung', 'Übersicht', 'Teilnehmeransicht');		
+    public $group_licenses = false;		
 
 
 
@@ -37,22 +37,6 @@ class ShowController extends StudipController {
 
     public function index_action() {
 	
-		foreach( Navigation::getItem('course') as $tab){
-		    if(!in_array($tab->getTitle(), $this->ignore_tabs)){
-		    	$block = CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
-                                 array($this->course_id,$tab->getTitle()) );
-			if ($block){
-		    		$this->tabs[] = array('title' => $tab->getTitle(), 
-						 'visible' => strcmp($block->getValue('tn_visible'), "yes") == 0 ? 'checked': ''
-					  );
-			} else 
-			   $this->tabs[] = array('title' => $tab->getTitle(), 
-						 'visible' => ''
-					  );
-
-		    }
-		}
-		
 	 // Fetch news
 	 $this->news = StudipNews::GetNewsByRange($this->course_id, !$this->show_all_news, true);	
 
@@ -100,60 +84,22 @@ class ShowController extends StudipController {
 
     }
 
-    public function save_action() {
+ public function overview_action() {
 	
-	$this->tabs = $_POST;
-	$tab_count = intval($this->tabs['tab_num']);
-
-	for ($i = 0; $i < $tab_count - 1; $i++){
-
-		$block = new CourseTab();
-		
-		//falls noch kein Eintrag existiert: anlegen
-		if (!CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
-                                 array($this->course_id,$this->tabs['tab_title_'. $i]))){
-			$block->setData(array(
-            		'seminar_id' => $this->course_id,
-           		'tab'       => $this->tabs['tab_title_'. $i],
-            		'tn_visible'      => $this->tabs['visible_'. $i] == 'on' ? 'yes' : 'no'
-        		));	
-
-        		$block->store();
-		} 
-
-		//falls ein Eintrag existiert: anpassen
-		else {
-			$block = CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
-                                 array($this->course_id,$this->tabs['tab_title_'. $i]));
-			var_dump($block->getValue('tab'));
-			var_dump($block->getValue('title'));
-			//var_dump($block[0]['tn_visible']);
-			//var_dump($block[0]['position']);
-			$block->setValue('tn_visible', $this->tabs['visible_'. $i] == 'on' ? 'yes' : 'no');
-			//$block->setValue('title', 'yes');
-			$block->store();
-
-		}
-	}
-
-
-    }
 	
-    public function overview_action() {
-		
     }
 
-    public function members_action() {
+ public function members_action() {
 	$this->dozenten = $this->sem->getMembers('dozent');
 	$this->tutoren = $this->sem->getMembers('tutor');
 	$this->autoren = $this->sem->getMembers('autor');
 	$this->users = $this->sem->getMembers('user');
     }
 
-    public function documents_action() {
+ public function documents_action() {
 	$this->documents = $this->getSeminarDocuments();
 
-    }  
+ }  
   
     public function showResult($vote) {
         if (Request::submitted('change') && $vote->changeable) {
@@ -192,22 +138,5 @@ class ShowController extends StudipController {
 	return $documents;
     }
     
-	
-	function url_for($to)
-    {
-        $args = func_get_args();
-
-        # find params
-        $params = array();
-        if (is_array(end($args))) {
-            $params = array_pop($args);
-        }
-
-        # urlencode all but the first argument
-        $args = array_map('urlencode', $args);
-        $args[0] = $to;
-
-        return PluginEngine::getURL($this->dispatcher->plugin, $params, join('/', $args));
-    } 
 
 }
