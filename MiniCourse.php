@@ -270,8 +270,6 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 		if(!$perm->have_studip_perm('tutor', $this->getSeminarId() )){
 		   if (Navigation::hasItem('/course')){
 			
-
-			$this->sortCourseNavigation();
 			$block = new CourseTab();
 
 			foreach(array_keys(Navigation::getItem('course')->getSubNavigation()) as $subNav){
@@ -280,27 +278,21 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 				if(!in_array($tab->getTitle(), $this->ignore_tabs)){
 		    			$block = CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
                                  array($this->getSeminarId(),$tab->getTitle()) );
-					/**
 					if($block){
 						if ($block->getValue('tn_visible') == 'yes'){
-						
-							//Tabs umbenennen - das hier sollte nicht innerhalb dieser Schleife passieren
+						//das hier sollte nicht innerhalb dieser Schleife passieren
 							foreach(Navigation::getItem('course/')->getSubNavigation() as $nav){
 								if ($nav->getTitle() == $block->getValue('tab')){
 									$nav->setTitle($block->getValue('title'));
 								}
 							} 
-
-
-
-
 						} else {
 						Navigation::getItem('course')->removeSubNavigation($subNav);	
 						}
 
 					} else {
 						Navigation::getItem('course')->removeSubNavigation($subNav);	
-					}**/
+					}
 				}
 			}
 
@@ -349,28 +341,7 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
 			
 	}
 	
-    private function sortCourseNavigation(){
-   	
-	$oldNavigation = Navigation::getItem('/course');
-	foreach(Navigation::getItem('/course') as $key => $tab){
-		$block = CourseTab::findOneBySQL('seminar_id = ? AND tab IN (?) ORDER BY position ASC',
-                                 array($this->getSeminarId(),$tab->getTitle()) );
-		if($block){
-			$tab->setTitle($block->getValue('title'));
-			if($block->getValue('tn_visible') == 'yes'){
-				$subNavigations[$block->getValue('position')] = $tab;	
-			}		
-		}
-		$oldNavigation->removeSubNavigation($key);
-	}
-	ksort($subNavigations);
-
-	foreach($subNavigations as $subNav){
-		$oldNavigation->addSubNavigation($subNav->getTitle(), $subNav);
-	}
-	Navigation::addItem('/course', $oldNavigation);
-    }
-
+   
     public function getInfoTemplate($course_id){
 	return null;
     }
@@ -387,5 +358,6 @@ class MiniCourse extends StudIPPlugin implements SystemPlugin
     {
         return Request::option('cid') ?: $GLOBALS['SessionSeminar'];
     }
+
    
 }

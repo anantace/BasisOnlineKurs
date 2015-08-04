@@ -50,19 +50,16 @@ class ShowController extends StudipController {
 			if ($block){
 		    		$this->tabs[] = array('tab' => $tab->getTitle(), 
 						 'title' => $block->getValue('title'),
-						 'visible' => strcmp($block->getValue('tn_visible'), "yes") == 0 ? 'checked': '',
-					  	 'position' => $block->getValue('position')
-						);
+						 'visible' => strcmp($block->getValue('tn_visible'), "yes") == 0 ? 'checked': ''
+					  );
 			} else 
 			   $this->tabs[] = array('tab' => $tab->getTitle(),
 						 'title' => $tab->getTitle(), 
-						 'visible' => '',
-						 'position' => ''
+						 'visible' => ''
 					  );
 
 		    }
 		}
-	 $this->tabs = $this->array_sort($this->tabs, 'position', SORT_ASC);
 		
 	 // Fetch news
 	 $this->news = StudipNews::GetNewsByRange($this->course_id, !$this->show_all_news, true);	
@@ -116,7 +113,7 @@ class ShowController extends StudipController {
 	$this->tabs = $_POST;
 	$tab_count = intval($this->tabs['tab_num']);
 
-	for ($i = 0; $i < $tab_count; $i++){
+	for ($i = 0; $i < $tab_count - 1; $i++){
 
 		$block = new CourseTab();
 		
@@ -127,8 +124,7 @@ class ShowController extends StudipController {
             		'seminar_id' => $this->course_id,
            		'tab'       => $this->tabs['tab_title_'. $i],
 			'title'       => $this->tabs['new_tab_title_'. $i],
-            		'tn_visible'      => $this->tabs['visible_'. $i] == 'on' ? 'yes' : 'no',
-			'position'       => $this->tabs['tab_position_'. $i]
+            		'tn_visible'      => $this->tabs['visible_'. $i] == 'on' ? 'yes' : 'no'
         		));	
 
         		$block->store();
@@ -140,7 +136,6 @@ class ShowController extends StudipController {
                                  array($this->course_id,$this->tabs['tab_title_'. $i]));
 			$block->setValue('tn_visible', $this->tabs['visible_'. $i] == 'on' ? 'yes' : 'no');
 			$block->setValue('title', $this->tabs['new_tab_title_'. $i]);
-			$block->setValue('position', $this->tabs['tab_position_'. $i]);
 			$block->store();
 
 		}
@@ -219,40 +214,5 @@ class ShowController extends StudipController {
 
         return PluginEngine::getURL($this->dispatcher->plugin, $params, join('/', $args));
     } 
-
-function array_sort($array, $on, $order=SORT_ASC)
-{
-    $new_array = array();
-    $sortable_array = array();
-
-    if (count($array) > 0) {
-        foreach ($array as $k => $v) {
-            if (is_array($v)) {
-                foreach ($v as $k2 => $v2) {
-                    if ($k2 == $on) {
-                        $sortable_array[$k] = $v2;
-                    }
-                }
-            } else {
-                $sortable_array[$k] = $v;
-            }
-        }
-
-        switch ($order) {
-            case SORT_ASC:
-                asort($sortable_array);
-            break;
-            case SORT_DESC:
-                arsort($sortable_array);
-            break;
-        }
-
-        foreach ($sortable_array as $k => $v) {
-            $new_array[$k] = $array[$k];
-        }
-    }
-
-    return $new_array;
-}
 
 }
